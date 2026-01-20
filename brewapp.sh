@@ -37,7 +37,7 @@ apps=(
     gcc
     shellcheck
     gh
-    httppie
+    httpie
     fd
     duf
     procs
@@ -55,6 +55,13 @@ apps=(
 
 LOG_FILE="$HOME/brew_install.log"
 BREW_ENV_LOADED=0
+
+export HOMEBREW_PREFIX="$HOME/homebrew"
+export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
+export HOMEBREW_CACHE="$HOME/.cache/homebrew"
+export HOME_BREW=$HOME/homebrew/bin/brew
+export CMD_LINE="$HOME_BREW shellenv"
+export CMD_EVAL="eval \"\$($CMD_LINE)\""
 
 # Cores para mensagens
 GREEN="\e[32m"
@@ -93,16 +100,9 @@ load_brew_env() {
 # 2. Verificar se o brew está instalado
 if ! command -v brew &>/dev/null; then
     log "Homebrew não encontrado. Instalando..."
-
-    export HOMEBREW_PREFIX="$HOME/homebrew"
-    export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
-    export HOMEBREW_CACHE="$HOME/.cache/homebrew"
-    
+   
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    HOME_BREW=$HOME/homebrew/bin/brew
-    CMD_LINE="$HOME_BREW shellenv"
-    CMD_EVAL="eval \"\$($CMD_LINE)\""
-    #
+        #
     #BREW_SHELLENV='eval "$('$HOME_BREW' shellenv)"'
 
     
