@@ -49,6 +49,7 @@ apps=(
     cargo-all-features
     go
     google-java-format
+    parallel
 )
 
 LOG_FILE="$HOME/brew_install.log"
