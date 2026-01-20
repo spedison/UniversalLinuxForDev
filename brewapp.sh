@@ -92,17 +92,23 @@ load_brew_env() {
 if ! command -v brew &>/dev/null; then
     log "Homebrew não encontrado. Instalando..."
 
+    export HOMEBREW_PREFIX="$HOME/homebrew"
+    export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
+    export HOMEBREW_CACHE="$HOME/.cache/homebrew"
+    
     NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    HOME_BREW=$HOME/homebrew/bin/brew
+    CMD_LINE="$HOME_BREW shellenv"
+    CMD_EVAL="eval \"\$($CMD_LINE)\""
+    #
+    #BREW_SHELLENV='eval "$('$HOME_BREW' shellenv)"'
 
+    
     # Adiciona o brew ao PATH após instalação (para sistemas baseados em Linux)
-    if [[ -d "$HOME/linuxbrew/.linuxbrew/bin" ]]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        echo 'eval "$($HOME/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.bashrc"
-        echo 'eval "$($HOME/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
-    elif [[ -d "/opt/homebrew/bin" ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.bashrc"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zshrc"
+    if [[ -x "$HOME/homebrew/bin/brew" ]]; then
+        $CMD_EVAL
+        echo "$CMD_EVAL" >> "$HOME/.bashrc"
+        echo "$CMD_EVAL" >> "$HOME/.zshrc"
     else
         error "Não foi possível encontrar o path do Homebrew após a instalação."
         exit 1
