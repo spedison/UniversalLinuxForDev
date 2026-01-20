@@ -3,6 +3,7 @@ set -euo pipefail
 
 # 1. Lista de apps a instalar via brew
 apps=(
+    ca-certificates
     git
     htop
     bat
