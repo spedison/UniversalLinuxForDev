@@ -27,9 +27,8 @@ apps=(
     iperf3
     tcpdump
     imagemagick
-    webp
-    graphviz
-    latexmk
+    webp 
+    latexml
     tth
     openssh
     make
