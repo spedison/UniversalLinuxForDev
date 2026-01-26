@@ -50,6 +50,12 @@ apps=(
     go
     google-java-format
     parallel
+    fzf
+    ripgrep
+    node
+    python
+    shellcheck
+    ctags
 )
 
 LOG_FILE="$HOME/brew_install.log"
