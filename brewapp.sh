@@ -56,6 +56,7 @@ apps=(
     python
     shellcheck
     ctags
+    distrobox
 )
 
 LOG_FILE="$HOME/brew_install.log"
