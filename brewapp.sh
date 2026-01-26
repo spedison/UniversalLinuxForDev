@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+##set -euo pipefail
 
 # 1. Lista de apps a instalar via brew
 apps=(
@@ -27,7 +27,7 @@ apps=(
     iperf3
     tcpdump
     imagemagick
-    webp 
+    webp
     latexml
     tth
     openssh
@@ -54,11 +54,17 @@ apps=(
 
 LOG_FILE="$HOME/brew_install.log"
 BREW_ENV_LOADED=0
-
-export HOMEBREW_PREFIX="$HOME/homebrew"
+export NONINTERACTIVE=1
+export HOMEBREW_PREFIX="$HOME/.linuxbrew/"
 export HOMEBREW_REPOSITORY="$HOMEBREW_PREFIX/Homebrew"
+export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
 export HOMEBREW_CACHE="$HOME/.cache/homebrew"
-export HOME_BREW=$HOME/homebrew/bin/brew
+export HOME_BREW="$HOMEBREW_PREFIX/bin/brew"
+
+export INSTALL_HOMEBREW_PREFIX="$HOMEBREW_PREFIX"
+export INSTALL_HOMEBREW_REPOSITORY="$HOMEBREW_REPOSITORY"
+export INSTALL_HOMEBREW_CELLAR="$HOMEBREW_CELLAR"
+
 export CMD_LINE="$HOME_BREW shellenv"
 export CMD_EVAL="eval \"\$($CMD_LINE)\""
 
@@ -87,27 +93,29 @@ error() {
 # Função que carrega ou não variáveis do Brew
 load_brew_env() {
     if [[ $BREW_ENV_LOADED -eq 0 ]]; then
-        if [[ -d "/home/linuxbrew/.linuxbrew/bin" ]]; then
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        elif [[ -d "/opt/homebrew/bin" ]]; then
-            eval "$(/opt/homebrew/bin/brew shellenv)"
+        if [[ -d "$HOMEBREW_HOME/homebrew/bin" ]]; then
+            eval "$($HOMEBREW_HOME/homebrew/bin/brew shellenv)"
         fi
         BREW_ENV_LOADED=1
     fi
 }
 
 # 2. Verificar se o brew está instalado
-if ! command -v brew &>/dev/null; then
+if ! command -v $HOME_BREW &>/dev/null; then
     log "Homebrew não encontrado. Instalando..."
-   
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        #
+    git clone https://github.com/Homebrew/brew "$HOMEBREW_PREFIX/Homebrew"
+    mkdir -p "$HOMEBREW_PREFIX"/{bin,Cellar}
+    ln -s "$HOMEBREW_PREFIX/Homebrew/bin/brew" "$HOMEBREW_PREFIX/bin/brew"
+    eval "$($HOME_BREW shellenv)"
+    $HOME_BREW update --force --quiet
+    chmod -R go-w "$HOMEBREW_PREFIX/share/zsh"
+    ### NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    #
     #BREW_SHELLENV='eval "$('$HOME_BREW' shellenv)"'
 
-    
     # Adiciona o brew ao PATH após instalação (para sistemas baseados em Linux)
-    if [[ -x "$HOME/homebrew/bin/brew" ]]; then
-        $CMD_EVAL
+    if [[ -x "$HOME_BREW" ]]; then
+        $HOME_BREW shellenv
         echo "$CMD_EVAL" >> "$HOME/.bashrc"
         echo "$CMD_EVAL" >> "$HOME/.zshrc"
     else
@@ -128,14 +136,15 @@ log "Usuário: $USER"
 log "--------------------------------------------------"
 
 # 3. Instalação dos apps
-for cmd in "${!apps[@]}"; do
-    pkg="${apps[$cmd]}"
-
-    if which "$cmd" &>/dev/null; then
-        success "$cmd já existe no sistema. $pkg não será instalado."
+for cmd in "${apps[@]}"; do
+    log "Processando App = $cmd"
+    EXISTE_APP=$($HOME_BREW list "$cmd" 2> /dev/null | wc -l)
+    log " App existe = $EXISTE_APP "
+    if [[ $EXISTE_APP -ge 1 ]]; then
+        success "$cmd já existe no sistema. $cmd não será instalado."
     else
-        log "$cmd não encontrado. Instalando $pkg via brew..."
-        brew install "$pkg" >> "$LOG_FILE" 2>&1 && success "$pkg instalado com sucesso." || error "Falha ao instalar $pkg."
+        log "$cmd não encontrado. Instalando $cmd via brew..."
+        $HOME_BREW install "$cmd" >> "$LOG_FILE" 2>&1 && success "$cmd instalado com sucesso." || error "Falha ao instalar $cmd."
     fi
 done
 
