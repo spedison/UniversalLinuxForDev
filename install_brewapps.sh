@@ -75,6 +75,11 @@ export INSTALL_HOMEBREW_CELLAR="$HOMEBREW_CELLAR"
 export CMD_LINE="$HOME_BREW shellenv"
 export CMD_EVAL="eval \"\$($CMD_LINE)\""
 
+if [[ ! -d "$HOMEBREW_PREFIX" ]]; then
+  error "Crie o diretório $HOMEBREW_PREFIX e atribua o Owner para o usuário $USER"
+  exit 1
+fi
+
 # Cores para mensagens
 GREEN="\e[32m"
 YELLOW="\e[33m"
@@ -160,3 +165,11 @@ log "Fim da execução: $(date)"
 log "--------------------------------------------------"
 
 success "Script finalizado com sucesso. Veja o log completo em: $LOG_FILE"
+
+log "Ajustando o Vim"
+VIM_VERSION=$(brew list --versions vim | awk '{print $2}')
+cd $HOMEBREW_PREFIX/share
+cp -Rv $HOMEBREW_CELLAR/vim/$VIM_VERSION/share/vim/vim91/* ./vim
+
+# TODO: Copiar o arquivo de plugins e instalá-los no ~/.vimrc
+
