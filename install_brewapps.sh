@@ -169,7 +169,7 @@ success "Script finalizado com sucesso. Veja o log completo em: $LOG_FILE"
 log "Ajustando o Vim"
 VIM_VERSION=$(brew list --versions vim | awk '{print $2}')
 cd $HOMEBREW_PREFIX/share
-cp -Rv $HOMEBREW_CELLAR/vim/$VIM_VERSION/share/vim/vim91/* ./vim
+cp -Rv $HOMEBREW_CELLAR/vim/$VIM_VERSION/share/vim/vim91/* ./vim/.
 
 # TODO: Copiar o arquivo de plugins e instalá-los no ~/.vimrc
 
